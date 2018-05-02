@@ -19,7 +19,7 @@ use ReflectionFunction;
 use ReflectionMethod;
 use think\exception\ClassNotFoundException;
 
-class Container
+class Container implements \ArrayAccess
 {
     /**
      * 容器对象实例
@@ -57,6 +57,17 @@ class Container
         }
 
         return static::$instance;
+    }
+
+    /**
+     * 获取当前容器的实例（单例）
+     * @access public
+     * @param  object        $instance
+     * @return static
+     */
+    public static function setInstance($instance)
+    {
+        static::$instance = $instance;
     }
 
     /**
@@ -376,4 +387,43 @@ class Container
         return $args;
     }
 
+    public function __set($name, $value)
+    {
+        $this->bind($name, $value);
+    }
+
+    public function __get($name)
+    {
+        return $this->make($name);
+    }
+
+    public function __isset($name)
+    {
+        return $this->has($name);
+    }
+
+    public function __unset($name)
+    {
+        $this->delete($name);
+    }
+
+    public function offsetExists($key)
+    {
+        return $this->has($key);
+    }
+
+    public function offsetGet($key)
+    {
+        return $this->make($key);
+    }
+
+    public function offsetSet($key, $value)
+    {
+        $this->bind($key, $value);
+    }
+
+    public function offsetUnset($key)
+    {
+        $this->delete($key);
+    }
 }
